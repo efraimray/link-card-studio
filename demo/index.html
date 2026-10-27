@@ -1,0 +1,1334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Showcase · Link Card Studio</title>
+<meta name="description" content="Live demo of Link Card Studio: preview and fix social share cards, then copy meta tags for HTML, Blogger or WordPress.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/*!
+ * Link Card Studio - styles.css
+ * Layout: a workbench. Editor on the left, live previews on the right,
+ * checks and copy-ready code underneath. One accent (cobalt) for actions;
+ * green / amber / red only for check states.
+ */
+:root {
+  --bg: #eef1f6;
+  --surface: #ffffff;
+  --surface-2: #f6f8fb;
+  --ink: #111a2b;
+  --muted: #586378;
+  --line: #d6dce7;
+  --accent: #2448d8;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(36, 72, 216, 0.1);
+  --pass: #12775a;
+  --warn: #a35f00;
+  --fail: #c0322a;
+  --g-link: #1a0dab;
+  --g-crumb: #4d5156;
+  --pv-bg: #ffffff;
+  --pv-ink: #1c1e21;
+  --pv-muted: #65676b;
+  --pv-line: #dadde1;
+  --pv-panel: #f0f2f5;
+  --chat-bubble: #e9ecf2;
+  --shadow: 0 1px 2px rgba(17, 26, 43, 0.06), 0 8px 24px rgba(17, 26, 43, 0.06);
+  --f-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --f-body: 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --f-mono: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+  --f-arial: Arial, Helvetica, sans-serif;
+  --r: 14px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1019; --surface: #131a27; --surface-2: #182132; --ink: #e5eaf4; --muted: #95a1b8;
+    --line: #26314a; --accent: #7d97ff; --accent-ink: #0b1019; --accent-soft: rgba(125, 151, 255, 0.14);
+    --pass: #3fcf95; --warn: #f2b552; --fail: #ff7b70; --g-link: #99c3ff; --g-crumb: #bdc1c6;
+    --pv-bg: #202124; --pv-ink: #e8eaed; --pv-muted: #9aa0a6; --pv-line: #3c4043; --pv-panel: #2a2b2e;
+    --chat-bubble: #2a3142; --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1019; --surface: #131a27; --surface-2: #182132; --ink: #e5eaf4; --muted: #95a1b8;
+  --line: #26314a; --accent: #7d97ff; --accent-ink: #0b1019; --accent-soft: rgba(125, 151, 255, 0.14);
+  --pass: #3fcf95; --warn: #f2b552; --fail: #ff7b70; --g-link: #99c3ff; --g-crumb: #bdc1c6;
+  --pv-bg: #202124; --pv-ink: #e8eaed; --pv-muted: #9aa0a6; --pv-line: #3c4043; --pv-panel: #2a2b2e;
+  --chat-bubble: #2a3142; --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.55 var(--f-body);
+}
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+a { color: var(--accent); }
+.vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 12px; top: -60px; background: var(--accent); color: var(--accent-ink); padding: 8px 14px; border-radius: 8px; z-index: 50; }
+.skip:focus { top: 12px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.lcs {
+  max-width: 1280px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 32px;
+  display: grid; gap: 18px;
+}
+
+/* ---------- Top bar ---------- */
+.lcs-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }
+.lcs-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.lcs-mark { width: 40px; height: 40px; color: var(--accent); flex: none; }
+.lcs-name { margin: 0; font: 800 1.45rem/1.1 var(--f-display); letter-spacing: -0.01em; }
+.lcs-tag { margin: 2px 0 0; color: var(--muted); font-size: 0.86rem; }
+.lcs-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+/* ---------- Buttons & inputs ---------- */
+.btn {
+  font: 600 0.88rem/1 var(--f-body); color: var(--accent-ink); background: var(--accent);
+  border: 1px solid var(--accent); border-radius: 9px; padding: 10px 14px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; transition: transform .15s ease, opacity .15s ease;
+}
+.btn:hover { opacity: .92; }
+.btn:active { transform: translateY(1px); }
+.btn-ghost, .btn-small { background: var(--surface); color: var(--ink); border-color: var(--line); }
+.btn-ghost:hover, .btn-small:hover { border-color: var(--accent); color: var(--accent); }
+.btn-small { padding: 7px 11px; font-size: 0.8rem; }
+select, input, textarea {
+  font: inherit; color: var(--ink); background: var(--surface-2); width: 100%;
+  border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px;
+}
+textarea { resize: vertical; min-height: 64px; }
+input:focus, textarea:focus, select:focus { border-color: var(--accent); outline: 2px solid var(--accent-soft); outline-offset: 0; }
+.lcs-sel select { width: auto; max-width: 240px; padding: 9px 10px; }
+
+/* ---------- Grid of panels ---------- */
+.lcs-grid {
+  display: grid; gap: 18px;
+  grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+  align-items: start;
+}
+.col { display: grid; gap: 18px; min-width: 0; align-content: start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); padding: 18px; min-width: 0; }
+.panel-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+.panel h2 { margin: 0; font: 800 1.1rem/1.2 var(--f-display); text-wrap: balance; }
+
+/* ---------- Score ---------- */
+.score { font: 600 0.8rem/1 var(--f-mono); display: inline-flex; align-items: baseline; gap: 2px; padding: 7px 11px; border-radius: 999px; border: 1px solid currentColor; color: var(--fail); font-variant-numeric: tabular-nums; }
+.score b { font-size: 1.15rem; }
+.score.is-warn { color: var(--warn); }
+.score.is-pass { color: var(--pass); }
+
+/* ---------- Form ---------- */
+.form { display: grid; gap: 14px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label, .label-row label { font-weight: 600; font-size: 0.86rem; }
+.label-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.count { font: 0.75rem var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.hint { margin: 0; font-size: 0.78rem; color: var(--muted); }
+.hint.is-warn { color: var(--warn); }
+.ruler { position: relative; height: 6px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); overflow: visible; }
+.ruler-fill { height: 100%; width: 0; border-radius: 6px; background: var(--pass); transition: width .25s ease, background-color .25s ease; max-width: 100%; }
+.ruler-fill.is-warn { background: var(--warn); }
+.ruler-mark { position: absolute; top: -4px; bottom: -4px; left: 83.33%; width: 2px; background: var(--ink); opacity: .35; }
+.img-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.img-meta { font: 0.75rem var(--f-mono); color: var(--muted); }
+.more { border-top: 1px dashed var(--line); padding-top: 12px; }
+.more summary { cursor: pointer; font-weight: 600; font-size: 0.9rem; color: var(--accent); }
+.more[open] summary { margin-bottom: 12px; }
+.more-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+#lcs-import .btn { margin-top: 10px; }
+.found { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.found:empty { display: none; }
+.tagpill { font: 0.72rem var(--f-mono); padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); }
+.tagpill.ok { color: var(--pass); border-color: currentColor; }
+.tagpill.no { color: var(--fail); border-color: currentColor; text-decoration: line-through; }
+
+/* ---------- Segmented controls ---------- */
+.seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); flex-wrap: wrap; }
+.seg-btn { font: 600 0.8rem/1 var(--f-body); color: var(--muted); background: transparent; border: 0; border-radius: 7px; padding: 7px 11px; cursor: pointer; }
+.seg-btn[aria-pressed="true"], .seg-btn[aria-selected="true"] { background: var(--surface); color: var(--accent); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
+
+/* ---------- Previews ---------- */
+.pv-wrap { display: grid; gap: 18px; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+.pv-wrap[data-w="phone"] { grid-template-columns: minmax(0, 360px); justify-content: center; }
+.pv-wrap .pv:first-child { grid-column: 1 / -1; }
+.pv { margin: 0; min-width: 0; }
+.pv-label { margin: 0 0 6px; font: 600 0.7rem/1 var(--f-mono); text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.pv-note { grid-column: 1 / -1; margin: 0; font-size: 0.78rem; color: var(--muted); }
+.pv img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ph { width: 100%; height: 100%; display: grid; place-items: center; background: var(--pv-panel); color: var(--pv-muted); font: 0.78rem var(--f-mono); }
+
+/* Google */
+.g { background: var(--pv-bg); color: var(--pv-ink); border: 1px solid var(--pv-line); border-radius: 12px; padding: 16px 18px; font-family: var(--f-arial); }
+.g-src { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.g-fav { width: 28px; height: 28px; border-radius: 50%; background: var(--pv-panel); border: 1px solid var(--pv-line); display: grid; place-items: center; font: 700 13px var(--f-arial); color: var(--pv-ink); flex: none; }
+.g-src > span:last-child { min-width: 0; flex: 1; }
+.g-site { display: block; font-size: 14px; line-height: 20px; color: var(--pv-ink); }
+.g-crumb { display: block; font-size: 12px; line-height: 18px; color: var(--g-crumb); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: min(520px, 100%); }
+.g-title { margin: 6px 0 3px; font-size: 20px; line-height: 26px; color: var(--g-link); max-width: 600px; overflow-wrap: anywhere; }
+.g-desc { margin: 0; font-size: 14px; line-height: 22px; color: var(--g-crumb); max-width: 600px; overflow-wrap: anywhere; }
+.pv-wrap[data-w="phone"] .g-title { font-size: 18px; line-height: 24px; }
+
+/* Facebook */
+.fb { background: var(--pv-bg); color: var(--pv-ink); border: 1px solid var(--pv-line); border-radius: 10px; overflow: hidden; font-family: var(--f-arial); }
+.fb-img { aspect-ratio: 1.91 / 1; background: var(--pv-panel); max-width: 100%; }
+.fb-body { background: var(--pv-panel); padding: 10px 12px 12px; border-top: 1px solid var(--pv-line); }
+.fb-host { margin: 0; font-size: 12px; color: var(--pv-muted); text-transform: uppercase; }
+.fb-title { margin: 3px 0 2px; font-size: 16px; font-weight: 700; line-height: 20px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.fb-desc { margin: 0; font-size: 14px; line-height: 20px; color: var(--pv-muted); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* X */
+.x { font-family: var(--f-arial); color: var(--pv-ink); }
+.x-img { position: relative; aspect-ratio: 1.91 / 1; border-radius: 16px; overflow: hidden; border: 1px solid var(--pv-line); background: var(--pv-panel); max-width: 100%; }
+.x-over { position: absolute; left: 12px; bottom: 12px; max-width: calc(100% - 24px); background: rgba(0, 0, 0, .72); color: #fff; font-size: 13px; line-height: 16px; padding: 3px 7px; border-radius: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.x-from { margin: 4px 0 0; font-size: 13px; color: var(--pv-muted); }
+.x.is-summary { display: grid; grid-template-columns: 110px minmax(0, 1fr); border: 1px solid var(--pv-line); border-radius: 16px; overflow: hidden; background: var(--pv-bg); }
+.x.is-summary .x-img { aspect-ratio: 1 / 1; border: 0; border-radius: 0; border-right: 1px solid var(--pv-line); }
+.x.is-summary .x-over { position: static; background: none; color: var(--pv-ink); padding: 0; white-space: normal; font-size: 15px; }
+.x.is-summary .x-from { align-self: center; padding: 0 12px; }
+
+/* LinkedIn */
+.li { background: var(--pv-bg); color: var(--pv-ink); border: 1px solid var(--pv-line); border-radius: 8px; overflow: hidden; font-family: var(--f-arial); }
+.li-img { aspect-ratio: 1.91 / 1; background: var(--pv-panel); max-width: 100%; }
+.li-body { padding: 8px 12px 10px; }
+.li-title { margin: 0; font-size: 14px; font-weight: 600; line-height: 20px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.li-host { margin: 2px 0 0; font-size: 12px; color: var(--pv-muted); }
+
+/* Chat */
+.chat { background: var(--pv-bg); border: 1px solid var(--pv-line); border-radius: 14px; padding: 14px; font-family: var(--f-arial); }
+.chat-bubble { margin-left: auto; max-width: 300px; background: var(--chat-bubble); color: var(--pv-ink); border-radius: 18px 18px 4px 18px; padding: 8px; }
+.chat-url { margin: 2px 6px 8px; font-size: 13px; color: var(--g-link); overflow-wrap: anywhere; }
+.chat-card { background: var(--pv-bg); border-radius: 12px; overflow: hidden; }
+.chat-img { aspect-ratio: 1.91 / 1; background: var(--pv-panel); max-width: 100%; }
+.chat-title { margin: 8px 10px 2px; font-size: 14px; font-weight: 700; line-height: 18px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.chat-host { margin: 0 10px 9px; font-size: 12px; color: var(--pv-muted); }
+
+/* ---------- Checks ---------- */
+.tally { font: 0.78rem var(--f-mono); color: var(--muted); }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.check { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line); }
+.check .ic { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font: 700 0.75rem/1 var(--f-mono); color: var(--surface); }
+.check.pass .ic { background: var(--pass); }
+.check.warn .ic { background: var(--warn); }
+.check.fail .ic { background: var(--fail); }
+.check b { font-size: 0.88rem; }
+.check p { margin: 1px 0 0; font-size: 0.84rem; color: var(--muted); }
+
+/* ---------- Code ---------- */
+.out-help { margin: 0 0 10px; font-size: 0.84rem; color: var(--muted); }
+.code-box { position: relative; }
+.code-box pre {
+  margin: 0; max-height: 440px; overflow: auto; padding: 16px; padding-top: 44px; border-radius: 10px;
+  background: #0d1320; color: #dbe4f5; border: 1px solid var(--line);
+  font: 12.5px/1.65 var(--f-mono); white-space: pre; tab-size: 4;
+}
+.code-box .copy { position: absolute; top: 8px; right: 8px; }
+.tok-tag { color: #8fb3ff; } .tok-attr { color: #f6c177; } .tok-str { color: #9ce0b8; } .tok-com { color: #7c879c; }
+
+/* ---------- Footer & toast ---------- */
+.lcs-foot { display: grid; gap: 4px; font-size: 0.8rem; color: var(--muted); }
+.lcs-foot p { margin: 0; }
+.toast {
+  position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px);
+  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 0.88rem;
+  opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; max-width: calc(100% - 32px);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1000px) {
+  .lcs-grid { grid-template-columns: minmax(0, 1fr); }
+  .col { display: contents; }
+  .lcs-editor { order: 1; } .lcs-previews { order: 2; } .lcs-checks { order: 3; } .lcs-code { order: 4; }
+}
+@media (max-width: 640px) {
+  .pv-wrap { grid-template-columns: minmax(0, 1fr); }
+  .more-grid { grid-template-columns: minmax(0, 1fr); }
+  .panel { padding: 14px; }
+  .lcs-sel select { max-width: 100%; }
+  .lcs-actions { width: 100%; }
+  .lcs-sel { flex: 1 1 100%; }
+  .lcs-sel select { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ---------- About this project (showcase page only) ---------- */
+.about { display: grid; gap: 18px; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+.about h2 { margin: 0 0 8px; font: 800 1.35rem/1.2 var(--f-display); text-wrap: balance; }
+.about h3 { margin: 0 0 6px; font: 800 1rem/1.3 var(--f-display); }
+.about p, .about li { font-size: 0.92rem; max-width: 65ch; }
+.about p { margin: 0 0 10px; }
+.about ul { margin: 0 0 10px; padding-left: 18px; display: grid; gap: 4px; }
+.about-eyebrow { font: 600 0.7rem/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px !important; }
+.about-side { display: grid; gap: 14px; align-content: start; }
+.langs { display: grid; gap: 6px; margin: 6px 0 10px; }
+.lang { display: grid; grid-template-columns: 92px minmax(0, 1fr) 44px; gap: 8px; align-items: center; font: 0.78rem var(--f-mono); font-variant-numeric: tabular-nums; }
+.lang-bar { height: 8px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
+.lang-bar span { display: block; height: 100%; background: var(--accent); }
+.about code { font: 0.82em var(--f-mono); background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
+@media (max-width: 800px) { .about { grid-template-columns: minmax(0, 1fr); } }
+
+</style>
+</head>
+<body>
+
+<a class="skip" href="#lcs-main">Skip to the editor</a>
+<div class="lcs" id="lcs-app">
+  <header class="lcs-top">
+    <div class="lcs-brand">
+      <svg class="lcs-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4" fill="currentColor"/><rect x="7" y="10" width="18" height="7" rx="1.5" fill="var(--surface)"/><rect x="7" y="20" width="12" height="2.5" rx="1" fill="var(--surface)"/></svg>
+      <div>
+        <p class="lcs-name">Link Card Studio</p>
+        <p class="lcs-tag">See your link before you share it</p>
+      </div>
+    </div>
+    <div class="lcs-actions">
+      <label class="lcs-sel"><span class="vh">Load a sample or saved card</span>
+        <select id="lcs-load" aria-label="Load a sample or saved card"></select>
+      </label>
+      <button type="button" class="btn" id="lcs-save">Save card</button>
+      <button type="button" class="btn btn-ghost" id="lcs-theme" aria-label="Switch light or dark theme">Theme</button>
+    </div>
+  </header>
+
+  <main class="lcs-grid" id="lcs-main">
+  <div class="col col-left">
+    <!-- ============ EDITOR ============ -->
+    <section class="panel lcs-editor" aria-labelledby="lcs-ed-h">
+      <div class="panel-head">
+        <h2 id="lcs-ed-h">Your link</h2>
+        <span class="score" id="lcs-score" aria-live="polite"><b>0</b><small>/100</small></span>
+      </div>
+
+      <form id="lcs-form" class="form" novalidate>
+        <div class="field">
+          <label for="f-url">Page URL</label>
+          <input id="f-url" name="url" type="url" inputmode="url" autocomplete="off" placeholder="https://example.com/page">
+        </div>
+        <div class="field">
+          <label for="f-siteName">Site name</label>
+          <input id="f-siteName" name="siteName" type="text" autocomplete="off" placeholder="Your business or blog name">
+        </div>
+        <div class="field">
+          <div class="label-row"><label for="f-title">Title</label><span class="count" id="c-title">0</span></div>
+          <input id="f-title" name="title" type="text" autocomplete="off" placeholder="What the page is about, key words first">
+          <div class="ruler" aria-hidden="true"><div class="ruler-fill" id="r-title"></div><span class="ruler-mark"></span></div>
+          <p class="hint" id="h-title">Google cuts titles near 600 px.</p>
+        </div>
+        <div class="field">
+          <div class="label-row"><label for="f-description">Description</label><span class="count" id="c-description">0</span></div>
+          <textarea id="f-description" name="description" rows="3" placeholder="One or two sentences that make people want to click"></textarea>
+          <div class="ruler" aria-hidden="true"><div class="ruler-fill" id="r-description"></div><span class="ruler-mark"></span></div>
+          <p class="hint" id="h-description">Aim for 70-160 characters.</p>
+        </div>
+        <div class="field">
+          <label for="f-image">Image URL</label>
+          <input id="f-image" name="image" type="url" inputmode="url" autocomplete="off" placeholder="https://example.com/card.jpg (1200 x 630)">
+          <div class="img-tools">
+            <label class="btn btn-small" for="f-file">Try a local image</label>
+            <input id="f-file" type="file" accept="image/*" class="vh">
+            <button type="button" class="btn btn-small" id="lcs-make">Make a card image</button>
+            <span class="img-meta" id="lcs-imgmeta">No image</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-imageAlt">Image alt text</label>
+          <input id="f-imageAlt" name="imageAlt" type="text" autocomplete="off" placeholder="Describe the image in a short sentence">
+        </div>
+
+        <details class="more">
+          <summary>More options</summary>
+          <div class="more-grid">
+            <div class="field">
+              <label for="f-type">Page type</label>
+              <select id="f-type" name="type"><option value="website">website (home, service page)</option><option value="article">article (blog post, news)</option></select>
+            </div>
+            <div class="field">
+              <label for="f-twitterCard">X card</label>
+              <select id="f-twitterCard" name="twitterCard"><option value="summary_large_image">Large image</option><option value="summary">Small square</option></select>
+            </div>
+            <div class="field">
+              <label for="f-twitterSite">X handle</label>
+              <input id="f-twitterSite" name="twitterSite" type="text" autocomplete="off" placeholder="@yourname">
+            </div>
+            <div class="field">
+              <label for="f-locale">Locale</label>
+              <input id="f-locale" name="locale" type="text" autocomplete="off" placeholder="en_PH">
+            </div>
+            <div class="field">
+              <label for="f-themeColor">Brand colour</label>
+              <input id="f-themeColor" name="themeColor" type="text" autocomplete="off" placeholder="#2448d8">
+            </div>
+          </div>
+        </details>
+
+        <details class="more" id="lcs-import">
+          <summary>Check an existing page</summary>
+          <div class="field">
+            <label for="f-source">Paste the page source (Ctrl+U in your browser, then copy)</label>
+            <textarea id="f-source" rows="5" spellcheck="false" placeholder="&lt;html&gt;&lt;head&gt;&lt;title&gt;…"></textarea>
+          </div>
+          <button type="button" class="btn" id="lcs-read">Read the tags</button>
+          <div class="found" id="lcs-found" aria-live="polite"></div>
+        </details>
+      </form>
+    </section>
+
+    <!-- ============ CHECKS ============ -->
+    <section class="panel lcs-checks" aria-labelledby="lcs-ck-h">
+      <div class="panel-head"><h2 id="lcs-ck-h">Checks</h2><span class="tally" id="lcs-tally"></span></div>
+      <ul class="checks" id="lcs-checks"></ul>
+    </section>
+  </div>
+  <div class="col col-right">
+    <!-- ============ PREVIEWS ============ -->
+    <section class="panel lcs-previews" aria-labelledby="lcs-pv-h">
+      <div class="panel-head">
+        <h2 id="lcs-pv-h">Previews</h2>
+        <div class="seg" role="group" aria-label="Preview width">
+          <button type="button" class="seg-btn" data-w="desktop" aria-pressed="true">Desktop</button>
+          <button type="button" class="seg-btn" data-w="phone" aria-pressed="false">Phone</button>
+        </div>
+      </div>
+      <div class="pv-wrap" id="lcs-pv" data-w="desktop">
+        <article class="pv" aria-label="Google search preview">
+          <p class="pv-label">Google search</p>
+          <div class="g">
+            <div class="g-src"><span class="g-fav" id="g-fav">E</span><span><span class="g-site" id="g-site"></span><span class="g-crumb" id="g-crumb"></span></span></div>
+            <p class="g-title" id="g-title"></p>
+            <p class="g-desc" id="g-desc"></p>
+          </div>
+        </article>
+
+        <article class="pv" aria-label="Facebook and Messenger preview">
+          <p class="pv-label">Facebook</p>
+          <div class="fb">
+            <div class="fb-img"><img id="fb-img" alt=""></div>
+            <div class="fb-body">
+              <p class="fb-host" id="fb-host"></p>
+              <p class="fb-title" id="fb-title"></p>
+              <p class="fb-desc" id="fb-desc"></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="pv" aria-label="X preview">
+          <p class="pv-label">X</p>
+          <div class="x" id="x-card">
+            <div class="x-img"><img id="x-img" alt=""><span class="x-over" id="x-over"></span></div>
+            <p class="x-from" id="x-from"></p>
+          </div>
+        </article>
+
+        <article class="pv" aria-label="LinkedIn preview">
+          <p class="pv-label">LinkedIn</p>
+          <div class="li">
+            <div class="li-img"><img id="li-img" alt=""></div>
+            <div class="li-body"><p class="li-title" id="li-title"></p><p class="li-host" id="li-host"></p></div>
+          </div>
+        </article>
+
+        <article class="pv" aria-label="Chat app preview">
+          <p class="pv-label">Chat apps (Messenger, Viber, WhatsApp style)</p>
+          <div class="chat">
+            <div class="chat-bubble">
+              <p class="chat-url" id="chat-url"></p>
+              <div class="chat-card">
+                <div class="chat-img"><img id="chat-img" alt=""></div>
+                <p class="chat-title" id="chat-title"></p>
+                <p class="chat-host" id="chat-host"></p>
+              </div>
+            </div>
+          </div>
+        </article>
+        <p class="pv-note">Layouts are close approximations; each app changes its design from time to time.</p>
+      </div>
+    </section>
+
+    <!-- ============ CODE ============ -->
+    <section class="panel lcs-code" aria-labelledby="lcs-cd-h">
+      <div class="panel-head">
+        <h2 id="lcs-cd-h">Copy the tags</h2>
+        <div class="seg" role="tablist" aria-label="Output format">
+          <button type="button" class="seg-btn" role="tab" data-out="html" aria-selected="true">HTML</button>
+          <button type="button" class="seg-btn" role="tab" data-out="blogger" aria-selected="false">Blogger</button>
+          <button type="button" class="seg-btn" role="tab" data-out="wordpress" aria-selected="false">WordPress</button>
+        </div>
+      </div>
+      <p class="out-help" id="lcs-outhelp"></p>
+      <div class="code-box">
+        <button type="button" class="btn btn-small copy" id="lcs-copy">Copy</button>
+        <pre id="lcs-out" tabindex="0"><code></code></pre>
+      </div>
+    </section>
+  </div>
+  </main>
+
+<section class="panel about" id="about" aria-labelledby="about-h">
+  <div>
+    <p class="about-eyebrow">About this project</p>
+    <h2 id="about-h">Why I built Link Card Studio</h2>
+    <p>When a small business shares its page on Facebook or Messenger, the link card is often the first thing customers see. Too often it shows the wrong photo, a cut-off title or no description at all, because the meta tags were never set. Most preview tools need a live URL and a server to fetch it. This one works on a draft, offline, before anything is published.</p>
+    <h3>Who it is for</h3>
+    <ul>
+      <li>Bloggers and small business owners on Blogger or WordPress</li>
+      <li>Web developers and freelancers who hand sites over to clients</li>
+      <li>Marketing staff of schools, cooperatives and LGU offices who post links every day</li>
+    </ul>
+    <h3>What it does</h3>
+    <ul>
+      <li>Live previews for Google (desktop and phone), Facebook, X, LinkedIn and chat apps</li>
+      <li>A pixel ruler that measures the title in the same font Google uses</li>
+      <li>11 checks with a score: lengths, https, image size and 1.91:1 shape, alt text, site name</li>
+      <li>Copy-ready tags as plain HTML, a dynamic Blogger theme snippet, or a WordPress mu-plugin</li>
+      <li>Reads an existing page's source and shows which tags are missing</li>
+      <li>Makes a simple 1200 &times; 630 title-card image, and saves cards in your browser</li>
+    </ul>
+    <h3>Use it or install it</h3>
+    <p>Open <code>index.html</code> in any browser, or host the folder on GitHub Pages or any web host. There is no build step and no server code. The source is on <a href="https://github.com/EfraimRay/link-card-studio" target="_blank" rel="noopener">GitHub</a> under the MIT license.</p>
+  </div>
+  <div class="about-side">
+    <div>
+      <h3>Languages used</h3>
+      <div class="langs"><div class="lang"><span>JavaScript</span><span class="lang-bar"><span style="width:64%"></span></span><span>64%</span></div><div class="lang"><span>CSS</span><span class="lang-bar"><span style="width:18%"></span></span><span>18%</span></div><div class="lang"><span>HTML</span><span class="lang-bar"><span style="width:18%"></span></span><span>18%</span></div></div>
+      <p>JavaScript does the measuring, checks and code generation; HTML is the page; CSS is the design system with light and dark themes. No frameworks, no npm, no tracking.</p>
+    </div>
+    <div>
+      <h3>For clients</h3>
+      <p>Link previews are an easy, visible win to sell: a one-time "share card setup" for an existing site, or part of every new website package. The Blogger and WordPress snippets make the fix take minutes.</p>
+    </div>
+    <div>
+      <h3>Privacy</h3>
+      <p>Everything runs in your browser. Nothing you type or upload leaves it.</p>
+    </div>
+    <p>Built by <a href="https://www.efraimray.com/" target="_blank" rel="noopener">Efraim Ray</a>, web developer in Valencia City, Bukidnon.</p>
+  </div>
+</section>
+
+  <footer class="lcs-foot">
+    <p>Everything runs in your browser. Nothing you type or upload is sent anywhere. Saved cards stay in this browser only.</p>
+    <p>Link Card Studio v1.0.0 · MIT · by <a href="https://www.efraimray.com/" target="_blank" rel="noopener">Efraim Ray</a> · <a href="https://github.com/EfraimRay/link-card-studio" target="_blank" rel="noopener">GitHub</a></p>
+  </footer>
+  <div class="toast" id="lcs-toast" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+/*!
+ * Link Card Studio - core.js
+ * Pure logic: no DOM access except the optional DOMParser passed to parseHead().
+ * Works in the browser (window.LinkCard) and in Node (module.exports) for tests.
+ * MIT (c) 2026 Efraim Ray - https://www.efraimray.com/
+ */
+(function (root) {
+  'use strict';
+
+  /** Approximate limits used by search and social previews (they change; treat as guides). */
+  var LIMITS = {
+    titleChars: { min: 30, max: 60 },
+    descChars: { min: 70, max: 160 },
+    titlePx: 600,        // Google desktop title, Arial 20px
+    descPx: 920,         // Google desktop description, about two lines of Arial 14px
+    imageBest: { w: 1200, h: 630 },
+    imageMin: { w: 600, h: 315 },
+    ratio: 1.91,
+    ratioTolerance: 0.06
+  };
+
+  /** Escape text for an HTML attribute or text node. */
+  function esc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  /** Escape text for a single-quoted PHP string. */
+  function phpStr(value) {
+    return "'" + String(value == null ? '' : value).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
+  }
+
+  function clean(value) {
+    return String(value == null ? '' : value).replace(/\s+/g, ' ').trim();
+  }
+
+  function parseUrl(u) {
+    try {
+      var x = new URL(String(u || '').trim());
+      if (x.protocol === 'https:' || x.protocol === 'http:') return x;
+    } catch (e) { /* not a URL */ }
+    return null;
+  }
+
+  function isAbsUrl(u) { return !!parseUrl(u); }
+
+  function isDataUrl(u) { return /^data:image\//i.test(String(u || '')); }
+
+  /** "www.example.com" -> "example.com" */
+  function hostOf(u) {
+    var x = parseUrl(u);
+    return x ? x.hostname.replace(/^www\./i, '') : '';
+  }
+
+  /** Google-style breadcrumb: "https://example.com › blog › post-name" */
+  function breadcrumb(u) {
+    var x = parseUrl(u);
+    if (!x) return '';
+    var parts = x.pathname.split('/').filter(Boolean).map(function (p) {
+      return decodeURIComponent(p).replace(/\.html?$/i, '');
+    });
+    return [x.protocol + '//' + x.hostname].concat(parts.slice(0, 3)).join(' \u203A ');
+  }
+
+  /**
+   * Cut text so it fits maxPx, ending at a word boundary with an ellipsis.
+   * measure(text) must return the rendered width in pixels.
+   */
+  function truncateToWidth(text, maxPx, measure) {
+    text = clean(text);
+    var full = measure(text);
+    if (full <= maxPx) return { text: text, truncated: false, width: full };
+    var ell = ' \u2026';
+    var lo = 0, hi = text.length;
+    while (lo < hi) {               // binary search for the longest prefix that fits
+      var mid = Math.ceil((lo + hi) / 2);
+      if (measure(text.slice(0, mid) + ell) <= maxPx) lo = mid; else hi = mid - 1;
+    }
+    var cut = text.slice(0, lo);
+    var space = cut.lastIndexOf(' ');
+    if (space > lo * 0.6) cut = cut.slice(0, space);
+    cut = cut.replace(/[\s,.;:\-\u2013\u2014|]+$/, '');
+    return { text: cut + ell, truncated: true, width: full };
+  }
+
+  /** Build the list of head tags for a card. Returns an array of HTML lines. */
+  function buildTags(card) {
+    var c = normalize(card);
+    var lines = [];
+    var img = c.image && !isDataUrl(c.image) ? c.image : 'https://example.com/path/to/card-image.jpg';
+    if (c.title) lines.push('<title>' + esc(c.title) + '</title>');
+    if (c.description) lines.push('<meta name="description" content="' + esc(c.description) + '">');
+    if (c.url) lines.push('<link rel="canonical" href="' + esc(c.url) + '">');
+    lines.push('');
+    lines.push('<!-- Open Graph: Facebook, Messenger, LinkedIn, Viber and most chat apps -->');
+    lines.push('<meta property="og:type" content="' + esc(c.type) + '">');
+    if (c.siteName) lines.push('<meta property="og:site_name" content="' + esc(c.siteName) + '">');
+    if (c.title) lines.push('<meta property="og:title" content="' + esc(c.title) + '">');
+    if (c.description) lines.push('<meta property="og:description" content="' + esc(c.description) + '">');
+    if (c.url) lines.push('<meta property="og:url" content="' + esc(c.url) + '">');
+    lines.push('<meta property="og:image" content="' + esc(img) + '">');
+    if (c.imageWidth && c.imageHeight) {
+      lines.push('<meta property="og:image:width" content="' + c.imageWidth + '">');
+      lines.push('<meta property="og:image:height" content="' + c.imageHeight + '">');
+    }
+    if (c.imageAlt) lines.push('<meta property="og:image:alt" content="' + esc(c.imageAlt) + '">');
+    if (c.locale) lines.push('<meta property="og:locale" content="' + esc(c.locale) + '">');
+    lines.push('');
+    lines.push('<!-- X (Twitter) card -->');
+    lines.push('<meta name="twitter:card" content="' + esc(c.twitterCard) + '">');
+    if (c.twitterSite) lines.push('<meta name="twitter:site" content="' + esc(c.twitterSite) + '">');
+    if (c.title) lines.push('<meta name="twitter:title" content="' + esc(c.title) + '">');
+    if (c.description) lines.push('<meta name="twitter:description" content="' + esc(c.description) + '">');
+    lines.push('<meta name="twitter:image" content="' + esc(img) + '">');
+    if (c.imageAlt) lines.push('<meta name="twitter:image:alt" content="' + esc(c.imageAlt) + '">');
+    if (c.themeColor) {
+      lines.push('');
+      lines.push('<meta name="theme-color" content="' + esc(c.themeColor) + '">');
+    }
+    return lines;
+  }
+
+  /** Fill defaults and trim every field. */
+  function normalize(card) {
+    card = card || {};
+    var handle = clean(card.twitterSite);
+    if (handle && handle.charAt(0) !== '@') handle = '@' + handle;
+    return {
+      title: clean(card.title),
+      description: clean(card.description),
+      url: clean(card.url),
+      siteName: clean(card.siteName),
+      image: String(card.image || '').trim(),
+      imageAlt: clean(card.imageAlt),
+      imageWidth: parseInt(card.imageWidth, 10) || 0,
+      imageHeight: parseInt(card.imageHeight, 10) || 0,
+      type: card.type === 'article' ? 'article' : 'website',
+      twitterCard: card.twitterCard === 'summary' ? 'summary' : 'summary_large_image',
+      twitterSite: handle,
+      locale: clean(card.locale) || 'en_PH',
+      themeColor: /^#[0-9a-f]{3,8}$/i.test(clean(card.themeColor)) ? clean(card.themeColor) : ''
+    };
+  }
+
+  /**
+   * Check a card. m = { titlePx, descPx } measured widths (optional).
+   * Returns { score, checks: [{ id, level: 'pass'|'warn'|'fail', label, msg }] }.
+   */
+  function checkCard(card, m) {
+    var c = normalize(card);
+    m = m || {};
+    var out = [];
+    function add(id, level, label, msg) { out.push({ id: id, level: level, label: label, msg: msg }); }
+    var tl = c.title.length, dl = c.description.length;
+
+    if (!tl) add('title', 'fail', 'Title', 'Add a title. Every preview uses it as the headline.');
+    else if (m.titlePx > LIMITS.titlePx) add('title', 'warn', 'Title', 'About ' + Math.round(m.titlePx) + 'px wide. Google cuts titles near ' + LIMITS.titlePx + 'px, so move the key words to the front.');
+    else if (tl < LIMITS.titleChars.min) add('title', 'warn', 'Title', tl + ' characters. A title of 30-60 characters usually describes the page better.');
+    else if (tl > LIMITS.titleChars.max) add('title', 'warn', 'Title', tl + ' characters. It fits the pixel width, but over 60 characters often gets cut on phones.');
+    else add('title', 'pass', 'Title', tl + ' characters' + (m.titlePx ? ', about ' + Math.round(m.titlePx) + 'px' : '') + '. Fits.');
+
+    if (!dl) add('desc', 'fail', 'Description', 'Add a description. Without one, sites pick random text from the page.');
+    else if (dl < LIMITS.descChars.min) add('desc', 'warn', 'Description', dl + ' characters. Add detail; 70-160 characters works best.');
+    else if (dl > LIMITS.descChars.max || m.descPx > LIMITS.descPx) add('desc', 'warn', 'Description', dl + ' characters. Search results will cut it near 155-160 characters.');
+    else add('desc', 'pass', 'Description', dl + ' characters. Fits.');
+
+    if (!c.url) add('url', 'fail', 'Page URL', 'Add the full page address, starting with https://');
+    else if (!isAbsUrl(c.url)) add('url', 'fail', 'Page URL', 'Use a full address such as https://example.com/page, not a relative path.');
+    else if (/^http:/i.test(c.url)) add('url', 'warn', 'Page URL', 'The address uses http://. Switch to https:// so browsers and apps trust it.');
+    else add('url', 'pass', 'Page URL', 'Full https address. Used for og:url and the canonical link.');
+
+    if (!c.image) add('image', 'fail', 'Image', 'Add an image. Posts without one get a small, easy-to-miss card.');
+    else if (isDataUrl(c.image)) add('image', 'warn', 'Image', 'This image only lives in your browser. Upload it to your site and paste its full https address.');
+    else if (!isAbsUrl(c.image)) add('image', 'fail', 'Image', 'og:image must be a full https address; relative paths are ignored by Facebook and X.');
+    else add('image', 'pass', 'Image', 'Full image address.');
+
+    if (c.image) {
+      if (!c.imageWidth || !c.imageHeight) {
+        add('size', 'warn', 'Image size', 'Size unknown (the image could not be loaded here). Aim for 1200 x 630 px.');
+      } else {
+        var w = c.imageWidth, h = c.imageHeight, ratio = w / h;
+        if (w >= LIMITS.imageBest.w && h >= LIMITS.imageBest.h) add('size', 'pass', 'Image size', w + ' x ' + h + ' px. Sharp on large cards.');
+        else if (w >= LIMITS.imageMin.w && h >= LIMITS.imageMin.h) add('size', 'warn', 'Image size', w + ' x ' + h + ' px. Works, but 1200 x 630 px looks sharper.');
+        else add('size', 'fail', 'Image size', w + ' x ' + h + ' px. Below 600 x 315 px most apps fall back to a small thumbnail.');
+        if (Math.abs(ratio - LIMITS.ratio) <= LIMITS.ratioTolerance) add('ratio', 'pass', 'Image shape', 'Ratio ' + ratio.toFixed(2) + ':1, matches the 1.91:1 card.');
+        else add('ratio', 'warn', 'Image shape', 'Ratio ' + ratio.toFixed(2) + ':1. Cards are 1.91:1, so the edges will be cropped.');
+      }
+    }
+
+    if (c.image) {
+      if (c.imageAlt) add('alt', 'pass', 'Image alt text', 'Screen reader users hear a description of the image.');
+      else add('alt', 'warn', 'Image alt text', 'Add alt text (og:image:alt) so screen reader users know what the image shows.');
+    }
+
+    if (c.siteName) add('site', 'pass', 'Site name', 'Shown above the title on Facebook and in chat apps.');
+    else add('site', 'warn', 'Site name', 'Add a site name (og:site_name) so people recognise the source.');
+
+    if (tl && dl && c.title.toLowerCase() === c.description.toLowerCase()) {
+      add('dupe', 'warn', 'Title vs description', 'The description repeats the title. Use it to add new information.');
+    }
+
+    if (c.twitterCard === 'summary_large_image' && !c.image) add('xcard', 'warn', 'X card', 'Large image card selected but there is no image.');
+    else add('xcard', 'pass', 'X card', c.twitterCard === 'summary' ? 'Small square card.' : 'Large image card.');
+
+    var points = 0;
+    out.forEach(function (x) { points += x.level === 'pass' ? 1 : x.level === 'warn' ? 0.5 : 0; });
+    return { score: out.length ? Math.round(points / out.length * 100) : 0, checks: out };
+  }
+
+  /**
+   * Read social tags out of a page's HTML source.
+   * DOMParserCtor: window.DOMParser in the browser (or a compatible implementation).
+   * Returns { card, found: [names], missing: [names] }.
+   */
+  function parseHead(html, DOMParserCtor) {
+    var doc = new DOMParserCtor().parseFromString(String(html || ''), 'text/html');
+    function meta(attr, name) {
+      var els = doc.querySelectorAll('meta[' + attr + ']');
+      for (var i = 0; i < els.length; i++) {
+        if ((els[i].getAttribute(attr) || '').toLowerCase() === name) return clean(els[i].getAttribute('content'));
+      }
+      return '';
+    }
+    var t = doc.querySelector('title');
+    var canon = doc.querySelector('link[rel="canonical"]');
+    var raw = {
+      'title': t ? clean(t.textContent) : '',
+      'description': meta('name', 'description'),
+      'canonical': canon ? clean(canon.getAttribute('href')) : '',
+      'og:title': meta('property', 'og:title'),
+      'og:description': meta('property', 'og:description'),
+      'og:url': meta('property', 'og:url'),
+      'og:image': meta('property', 'og:image'),
+      'og:image:alt': meta('property', 'og:image:alt'),
+      'og:site_name': meta('property', 'og:site_name'),
+      'og:type': meta('property', 'og:type'),
+      'og:locale': meta('property', 'og:locale'),
+      'twitter:card': meta('name', 'twitter:card'),
+      'twitter:site': meta('name', 'twitter:site'),
+      'twitter:image': meta('name', 'twitter:image')
+    };
+    var found = [], missing = [];
+    Object.keys(raw).forEach(function (k) { (raw[k] ? found : missing).push(k); });
+    var w = parseInt(meta('property', 'og:image:width'), 10) || 0;
+    var h = parseInt(meta('property', 'og:image:height'), 10) || 0;
+    return {
+      card: {
+        title: raw['og:title'] || raw.title,
+        description: raw['og:description'] || raw.description,
+        url: raw['og:url'] || raw.canonical,
+        image: raw['og:image'] || raw['twitter:image'],
+        imageAlt: raw['og:image:alt'],
+        imageWidth: w,
+        imageHeight: h,
+        siteName: raw['og:site_name'],
+        type: raw['og:type'] === 'article' ? 'article' : 'website',
+        twitterCard: raw['twitter:card'] === 'summary' ? 'summary' : 'summary_large_image',
+        twitterSite: raw['twitter:site'],
+        locale: raw['og:locale'] || 'en_PH',
+        themeColor: meta('name', 'theme-color')
+      },
+      found: found,
+      missing: missing
+    };
+  }
+
+  /** Blogger theme snippet: dynamic per post, with this card as the fallback. */
+  function bloggerSnippet(card) {
+    var c = normalize(card);
+    var img = c.image && !isDataUrl(c.image) && isAbsUrl(c.image) ? c.image : 'https://example.com/your-default-card.jpg';
+    var desc = c.description || 'Describe your blog in one sentence.';
+    var L = [];
+    L.push("<!-- Link Card Studio: social cards for Blogger.");
+    L.push("     Theme > Edit HTML > paste inside <head>, below <b:include data='blog' name='all-head-content'/>.");
+    L.push("     Back up your theme first. If View Source then shows an og: tag twice, delete one copy. -->");
+    L.push("<meta property='og:site_name' expr:content='data:blog.title.escaped'/>");
+    L.push("<meta property='og:locale' content='" + esc(c.locale) + "'/>");
+    L.push("<meta property='og:url' expr:content='data:view.url.canonical'/>");
+    L.push("<b:if cond='data:view.isSingleItem'>");
+    L.push("  <meta property='og:type' content='article'/>");
+    L.push("<b:else/>");
+    L.push("  <meta property='og:type' content='website'/>");
+    L.push("</b:if>");
+    L.push("<meta property='og:title' expr:content='data:view.title.escaped'/>");
+    L.push("<meta name='twitter:title' expr:content='data:view.title.escaped'/>");
+    L.push("<b:if cond='data:view.description'>");
+    L.push("  <meta property='og:description' expr:content='data:view.description.escaped'/>");
+    L.push("  <meta name='twitter:description' expr:content='data:view.description.escaped'/>");
+    L.push("<b:else/>");
+    L.push("  <meta property='og:description' content='" + esc(desc) + "'/>");
+    L.push("  <meta name='twitter:description' content='" + esc(desc) + "'/>");
+    L.push("</b:if>");
+    L.push("<b:if cond='data:view.featuredImage'>");
+    L.push("  <meta property='og:image' expr:content='resizeImage(data:view.featuredImage, 1200, &quot;1200:630&quot;)'/>");
+    L.push("  <meta name='twitter:image' expr:content='resizeImage(data:view.featuredImage, 1200, &quot;1200:630&quot;)'/>");
+    L.push("<b:else/>");
+    L.push("  <meta property='og:image' content='" + esc(img) + "'/>");
+    L.push("  <meta name='twitter:image' content='" + esc(img) + "'/>");
+    L.push("</b:if>");
+    L.push("<meta name='twitter:card' content='" + esc(c.twitterCard) + "'/>");
+    if (c.twitterSite) L.push("<meta name='twitter:site' content='" + esc(c.twitterSite) + "'/>");
+    return L.join('\n');
+  }
+
+  /** WordPress mu-plugin: dynamic per post, skips output when an SEO plugin is active. */
+  function wordpressSnippet(card) {
+    var c = normalize(card);
+    var img = c.image && !isDataUrl(c.image) && isAbsUrl(c.image) ? c.image : 'https://example.com/your-default-card.jpg';
+    var desc = c.description || 'Describe your site in one sentence.';
+    return [
+      '<?php',
+      '/**',
+      ' * Plugin Name: Link Card Tags',
+      ' * Description: Open Graph and X card tags generated with Link Card Studio. Skips output when Yoast SEO or Rank Math is active.',
+      ' * Version:     1.0.0',
+      ' * License:     GPL-2.0-or-later',
+      ' *',
+      ' * Save as wp-content/mu-plugins/link-card-tags.php (create the folder if needed).',
+      ' */',
+      '',
+      "defined( 'ABSPATH' ) || exit;",
+      '',
+      "add_action( 'wp_head', 'lcs_print_card_tags', 5 );",
+      '',
+      'function lcs_print_card_tags() {',
+      "\tif ( defined( 'WPSEO_VERSION' ) || class_exists( 'RankMath' ) ) {",
+      '\t\treturn; // An SEO plugin already prints these tags.',
+      '\t}',
+      '',
+      '\t$default_desc  = ' + phpStr(desc) + ';',
+      '\t$default_image = ' + phpStr(img) + ';',
+      '\t$single        = is_singular();',
+      '',
+      "\t$title = $single ? get_the_title() : get_bloginfo( 'name' );",
+      "\t$desc  = ( $single && has_excerpt() ) ? wp_strip_all_tags( get_the_excerpt() ) : $default_desc;",
+      "\t$url   = $single ? get_permalink() : home_url( '/' );",
+      '\t$image = $default_image;',
+      '\tif ( $single && has_post_thumbnail() ) {',
+      "\t\t$src = wp_get_attachment_image_src( get_post_thumbnail_id(), 'full' );",
+      '\t\tif ( $src ) {',
+      '\t\t\t$image = $src[0];',
+      '\t\t}',
+      '\t}',
+      '',
+      '\t$og = array(',
+      "\t\t'og:type'        => $single ? 'article' : 'website',",
+      "\t\t'og:site_name'   => get_bloginfo( 'name' ),",
+      "\t\t'og:title'       => $title,",
+      "\t\t'og:description' => $desc,",
+      "\t\t'og:url'         => $url,",
+      "\t\t'og:image'       => $image,",
+      "\t\t'og:locale'      => " + phpStr(c.locale) + ',',
+      '\t);',
+      '\t$x = array(',
+      "\t\t'twitter:card'        => " + phpStr(c.twitterCard) + ',',
+      "\t\t'twitter:title'       => $title,",
+      "\t\t'twitter:description' => $desc,",
+      "\t\t'twitter:image'       => $image,",
+      c.twitterSite ? "\t\t'twitter:site'        => " + phpStr(c.twitterSite) + ',' : null,
+      '\t);',
+      '',
+      '\tforeach ( $og as $property => $content ) {',
+      "\t\tprintf( '<meta property=\"%s\" content=\"%s\" />' . \"\\n\", esc_attr( $property ), esc_attr( $content ) );",
+      '\t}',
+      '\tforeach ( $x as $name => $content ) {',
+      "\t\tprintf( '<meta name=\"%s\" content=\"%s\" />' . \"\\n\", esc_attr( $name ), esc_attr( $content ) );",
+      '\t}',
+      '}',
+      ''
+    ].filter(function (line) { return line !== null; }).join('\n');
+  }
+
+  var api = {
+    LIMITS: LIMITS,
+    esc: esc,
+    clean: clean,
+    isAbsUrl: isAbsUrl,
+    isDataUrl: isDataUrl,
+    hostOf: hostOf,
+    breadcrumb: breadcrumb,
+    truncateToWidth: truncateToWidth,
+    normalize: normalize,
+    buildTags: buildTags,
+    checkCard: checkCard,
+    parseHead: parseHead,
+    bloggerSnippet: bloggerSnippet,
+    wordpressSnippet: wordpressSnippet
+  };
+
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.LinkCard = api;
+})(typeof window !== 'undefined' ? window : this);
+
+/*!
+ * Link Card Studio - app.js
+ * Wires the form, previews, checks and code output to the pure functions in core.js.
+ * MIT (c) 2026 Efraim Ray - https://www.efraimray.com/
+ */
+(function () {
+  'use strict';
+  var LC = window.LinkCard;
+  var app = document.getElementById('lcs-app');
+  if (!LC || !app) return;
+
+  var FIELDS = ['url', 'siteName', 'title', 'description', 'image', 'imageAlt', 'type', 'twitterCard', 'twitterSite', 'locale', 'themeColor'];
+  var KEY_SAVED = 'lcs.saved.v1';
+  var KEY_DRAFT = 'lcs.draft.v1';
+  var KEY_THEME = 'lcs.theme.v1';
+
+  /* Sample cards (invented businesses; .example domains are reserved for examples). */
+  var SAMPLES = [
+    {
+      id: 'sample-blog', label: 'Sample: blog post (good)',
+      card: {
+        url: 'https://www.efraimray.com/2026/10/link-card-studio.html', siteName: 'Efraim Ray',
+        title: 'Link Card Studio: Preview and Fix Your Social Share Cards',
+        description: 'A free browser tool that previews your link on Google, Facebook, X, LinkedIn and chat apps, flags problems and writes the meta tags for you.',
+        image: 'generate', imageAlt: 'Link Card Studio title card on a cobalt background',
+        type: 'article', twitterCard: 'summary_large_image', twitterSite: '', locale: 'en_PH', themeColor: '#2448d8'
+      }
+    },
+    {
+      id: 'sample-bakery', label: 'Sample: bakery home page',
+      card: {
+        url: 'https://breadandbloom.example/', siteName: 'Bread & Bloom Bakery',
+        title: 'Bread & Bloom Bakery | Fresh Pandesal in Valencia City',
+        description: 'Hot pandesal from 5 AM, ube cheese rolls and custom cakes from ₱450. Order for pickup on Messenger or visit us on Sayre Highway, Valencia City.',
+        image: 'generate', imageAlt: 'Bread & Bloom Bakery card with the shop name on a warm brown background',
+        type: 'website', twitterCard: 'summary_large_image', twitterSite: '', locale: 'en_PH', themeColor: '#8a4b23'
+      }
+    },
+    {
+      id: 'sample-resort', label: 'Sample: resort promo (needs fixes)',
+      card: {
+        url: 'http://highlandlakeside.example/promo', siteName: '',
+        title: 'Highland Lakeside Resort Malaybalay City Bukidnon Weekend Promo Rooms Cottages Pool Day Tour Rates 2026',
+        description: 'Book now!',
+        image: '/images/promo.jpg', imageAlt: '',
+        type: 'website', twitterCard: 'summary_large_image', twitterSite: '', locale: 'en_PH', themeColor: ''
+      }
+    }
+  ];
+
+  var form = document.getElementById('lcs-form');
+  var $ = function (id) { return document.getElementById(id); };
+  var card = {};
+  var imgToken = 0;
+  var outMode = 'html';
+
+  /* ---------- storage (always optional) ---------- */
+  function load(key, fallback) {
+    try { var v = window.localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; }
+  }
+  function store(key, value) {
+    try { window.localStorage.setItem(key, JSON.stringify(value)); return true; } catch (e) { return false; }
+  }
+
+  /* ---------- text measuring with a canvas, same fonts Google uses ---------- */
+  var ctx = document.createElement('canvas').getContext('2d');
+  function measure(font) {
+    return function (text) { ctx.font = font; return ctx.measureText(text).width; };
+  }
+  var mTitle = measure('20px Arial');
+  var mDesc = measure('14px Arial');
+
+  /* ---------- toast ---------- */
+  var toastTimer;
+  function toast(msg) {
+    var t = $('lcs-toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+
+  /* ---------- form <-> card ---------- */
+  function readForm() {
+    FIELDS.forEach(function (f) {
+      var el = $('f-' + f);
+      if (el && !(f === 'image' && LC.isDataUrl(card.image) && el.value === '(image made in this browser)')) card[f] = el.value;
+    });
+  }
+  function writeForm() {
+    FIELDS.forEach(function (f) {
+      var el = $('f-' + f);
+      if (!el) return;
+      el.value = f === 'image' && LC.isDataUrl(card.image) ? '(image made in this browser)' : (card[f] || '');
+    });
+    if (!$('f-type').value) $('f-type').value = 'website';
+    if (!$('f-twitterCard').value) $('f-twitterCard').value = 'summary_large_image';
+  }
+
+  /* ---------- image helpers ---------- */
+  function wrapLines(c2d, text, maxW) {
+    var words = text.split(/\s+/), lines = [], line = '';
+    words.forEach(function (w) {
+      var test = line ? line + ' ' + w : w;
+      if (c2d.measureText(test).width > maxW && line) { lines.push(line); line = w; } else { line = test; }
+    });
+    if (line) lines.push(line);
+    return lines;
+  }
+
+  /** Draw a simple 1200 x 630 title card and return a PNG data URL. */
+  function makeCardImage(c) {
+    var cv = document.createElement('canvas');
+    cv.width = 1200; cv.height = 630;
+    var g = cv.getContext('2d');
+    var base = /^#[0-9a-f]{6}$/i.test(c.themeColor || '') ? c.themeColor : '#2448d8';
+    var grad = g.createLinearGradient(0, 0, 1200, 630);
+    grad.addColorStop(0, base); grad.addColorStop(1, '#0b1220');
+    g.fillStyle = grad; g.fillRect(0, 0, 1200, 630);
+    g.strokeStyle = 'rgba(255,255,255,0.07)'; g.lineWidth = 1;
+    for (var x = 0; x <= 1200; x += 40) { g.beginPath(); g.moveTo(x + 0.5, 0); g.lineTo(x + 0.5, 630); g.stroke(); }
+    for (var y = 0; y <= 630; y += 40) { g.beginPath(); g.moveTo(0, y + 0.5); g.lineTo(1200, y + 0.5); g.stroke(); }
+    g.fillStyle = 'rgba(255,255,255,0.8)';
+    g.font = '600 26px "JetBrains Mono", Consolas, monospace';
+    g.fillText((c.siteName || LC.hostOf(c.url) || 'Your site').toUpperCase(), 80, 110);
+    g.fillStyle = '#ffffff';
+    g.font = '800 68px "Bricolage Grotesque", "Segoe UI", Arial, sans-serif';
+    var lines = wrapLines(g, LC.clean(c.title) || 'Your page title', 1040).slice(0, 4);
+    lines.forEach(function (l, i) { g.fillText(l, 80, 220 + i * 80); });
+    g.fillStyle = 'rgba(255,255,255,0.75)';
+    g.font = '500 26px "IBM Plex Sans", Arial, sans-serif';
+    g.fillText(LC.hostOf(c.url) || 'example.com', 80, 560);
+    return cv.toDataURL('image/png');
+  }
+
+  function measureImage(src) {
+    var token = ++imgToken;
+    card.imageWidth = 0; card.imageHeight = 0;
+    if (!src) { $('lcs-imgmeta').textContent = 'No image'; return; }
+    if (!LC.isDataUrl(src) && !LC.isAbsUrl(src)) { $('lcs-imgmeta').textContent = 'Not a full URL'; return; }
+    $('lcs-imgmeta').textContent = 'Measuring…';
+    var im = new Image();
+    im.onload = function () {
+      if (token !== imgToken) return;
+      card.imageWidth = im.naturalWidth; card.imageHeight = im.naturalHeight;
+      $('lcs-imgmeta').textContent = im.naturalWidth + ' × ' + im.naturalHeight + ' px';
+      render();
+    };
+    im.onerror = function () {
+      if (token !== imgToken) return;
+      $('lcs-imgmeta').textContent = 'Could not load here';
+      render();
+    };
+    im.src = src;
+  }
+
+  function setImg(id, src) {
+    var box = $(id).parentNode;
+    var ph = box.querySelector('.ph');
+    var ok = src && (LC.isDataUrl(src) || LC.isAbsUrl(src));
+    $(id).hidden = !ok;
+    if (ok) {
+      if ($(id).getAttribute('src') !== src) $(id).setAttribute('src', src);
+      $(id).setAttribute('alt', card.imageAlt || '');
+      if (ph) ph.remove();
+    } else if (!ph) {
+      ph = document.createElement('div');
+      ph.className = 'ph';
+      ph.textContent = 'No image';
+      box.insertBefore(ph, box.firstChild);
+    }
+  }
+
+  /* ---------- syntax colouring for the code box ---------- */
+  function highlight(code) {
+    return LC.esc(code)
+      .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="tok-com">$1</span>')
+      .replace(/(&quot;[^\n]*?&quot;|&#39;[^\n]*?&#39;)/g, '<span class="tok-str">$1</span>')
+      .replace(/(&lt;\/?)([a-zA-Z?][\w:?-]*)/g, '$1<span class="tok-tag">$2</span>')
+      .replace(/(\s)(property|name|content|rel|href|expr:content|cond|data)=/g, '$1<span class="tok-attr">$2</span>=');
+  }
+
+  var HELP = {
+    html: 'Paste inside the <head> of your page. Replace an existing tag rather than adding a second copy.',
+    blogger: 'Blogger: Theme → Customize arrow → Edit HTML. Paste inside <head>, below the all-head-content include. Each post then uses its own title, search description and first image; this card fills in when a post has none.',
+    wordpress: 'WordPress without an SEO plugin: save as wp-content/mu-plugins/link-card-tags.php. Each post uses its title, excerpt and featured image. It switches itself off if Yoast SEO or Rank Math is active.'
+  };
+
+  function codeFor(mode) {
+    if (mode === 'blogger') return LC.bloggerSnippet(card);
+    if (mode === 'wordpress') return LC.wordpressSnippet(card);
+    return LC.buildTags(card).join('\n');
+  }
+
+  /* ---------- main render ---------- */
+  function render() {
+    var c = LC.normalize(card);
+    var tPx = c.title ? mTitle(c.title) : 0;
+    var dPx = c.description ? mDesc(c.description) : 0;
+
+    // counters and pixel rulers (the mark sits at the limit; the bar runs to 120% of it)
+    $('c-title').textContent = c.title.length + ' chars · ' + Math.round(tPx) + ' / 600 px';
+    $('c-description').textContent = c.description.length + ' / 160 chars';
+    var rt = $('r-title'), rd = $('r-description');
+    rt.style.width = Math.min(100, tPx / (LC.LIMITS.titlePx * 1.2) * 100) + '%';
+    rt.classList.toggle('is-warn', tPx > LC.LIMITS.titlePx);
+    rd.style.width = Math.min(100, c.description.length / (LC.LIMITS.descChars.max * 1.2) * 100) + '%';
+    rd.classList.toggle('is-warn', c.description.length > LC.LIMITS.descChars.max);
+    $('h-title').textContent = tPx > LC.LIMITS.titlePx ? 'Too wide: Google will cut it. Put the key words first.' : 'Google cuts titles near 600 px.';
+    $('h-title').classList.toggle('is-warn', tPx > LC.LIMITS.titlePx);
+    $('h-description').textContent = c.description.length > LC.LIMITS.descChars.max ? 'Long: search results show about 155-160 characters.' : 'Aim for 70-160 characters.';
+    $('h-description').classList.toggle('is-warn', c.description.length > LC.LIMITS.descChars.max);
+
+    // previews
+    var host = LC.hostOf(c.url) || 'example.com';
+    var title = c.title || 'Your page title';
+    $('g-fav').textContent = (c.siteName || host).charAt(0).toUpperCase();
+    $('g-site').textContent = c.siteName || host;
+    $('g-crumb').textContent = LC.breadcrumb(c.url) || 'https://example.com';
+    var phone = $('lcs-pv').getAttribute('data-w') === 'phone';
+    $('g-title').textContent = LC.truncateToWidth(title, phone ? 1000 : LC.LIMITS.titlePx, phone ? measure('18px Arial') : mTitle).text;
+    $('g-desc').textContent = c.description ? LC.truncateToWidth(c.description, phone ? 900 : LC.LIMITS.descPx, mDesc).text : 'Google will pick text from the page when there is no description.';
+    $('fb-host').textContent = host;
+    $('fb-title').textContent = title;
+    $('fb-desc').textContent = c.description;
+    $('x-over').textContent = title;
+    $('x-from').textContent = 'From ' + host;
+    $('x-card').classList.toggle('is-summary', c.twitterCard === 'summary');
+    $('li-title').textContent = title;
+    $('li-host').textContent = host;
+    $('chat-url').textContent = c.url || 'https://example.com';
+    $('chat-title').textContent = title;
+    $('chat-host').textContent = host;
+    ['fb-img', 'x-img', 'li-img', 'chat-img'].forEach(function (id) { setImg(id, c.image); });
+
+    // checks
+    var res = LC.checkCard(card, { titlePx: tPx, descPx: dPx });
+    var score = $('lcs-score');
+    score.querySelector('b').textContent = res.score;
+    score.className = 'score ' + (res.score >= 85 ? 'is-pass' : res.score >= 60 ? 'is-warn' : '');
+    score.setAttribute('aria-label', 'Card score ' + res.score + ' out of 100');
+    var n = { pass: 0, warn: 0, fail: 0 };
+    $('lcs-checks').innerHTML = res.checks.map(function (k) {
+      n[k.level]++;
+      var icon = k.level === 'pass' ? '✓' : k.level === 'warn' ? '!' : '×';
+      return '<li class="check ' + k.level + '"><span class="ic" aria-hidden="true">' + icon + '</span><div><b>' + LC.esc(k.label) +
+        '</b> <span class="vh">(' + k.level + ')</span><p>' + LC.esc(k.msg) + '</p></div></li>';
+    }).join('');
+    $('lcs-tally').textContent = n.pass + ' pass · ' + n.warn + ' warn · ' + n.fail + ' fix';
+
+    // code
+    $('lcs-outhelp').textContent = HELP[outMode];
+    $('lcs-out').firstChild.innerHTML = highlight(codeFor(outMode));
+
+    store(KEY_DRAFT, card);
+  }
+
+  /* ---------- load a card into the editor ---------- */
+  function useCard(src) {
+    card = {};
+    FIELDS.forEach(function (f) { card[f] = src[f] || ''; });
+    if (card.image === 'generate') card.image = makeCardImage(card);
+    writeForm();
+    measureImage(card.image);
+    render();
+  }
+
+  function fillLoadMenu() {
+    var saved = load(KEY_SAVED, []);
+    var sel = $('lcs-load');
+    var html = '<option value="">Load a card…</option><optgroup label="Samples">';
+    SAMPLES.forEach(function (s) { html += '<option value="' + s.id + '">' + LC.esc(s.label) + '</option>'; });
+    html += '</optgroup>';
+    if (saved.length) {
+      html += '<optgroup label="Saved in this browser">';
+      saved.forEach(function (s, i) { html += '<option value="saved-' + i + '">' + LC.esc(s.name) + '</option>'; });
+      html += '</optgroup>';
+    }
+    sel.innerHTML = html;
+  }
+
+  /* ---------- events ---------- */
+  form.addEventListener('input', function (e) {
+    if (e.target.id === 'f-source') return;
+    readForm();
+    if (e.target.id === 'f-image') measureImage(card.image);
+    render();
+  });
+  form.addEventListener('submit', function (e) { e.preventDefault(); });
+
+  $('lcs-load').addEventListener('change', function (e) {
+    var v = e.target.value;
+    if (!v) return;
+    if (v.indexOf('saved-') === 0) {
+      var s = load(KEY_SAVED, [])[+v.slice(6)];
+      if (s) { useCard(s.card); toast('Loaded “' + s.name + '”'); }
+    } else {
+      SAMPLES.forEach(function (s) { if (s.id === v) { useCard(s.card); toast('Loaded ' + s.label.replace('Sample: ', 'the sample ')); } });
+    }
+    e.target.value = '';
+  });
+
+  $('lcs-save').addEventListener('click', function () {
+    var saved = load(KEY_SAVED, []);
+    var name = LC.clean(card.title).slice(0, 48) || 'Untitled card';
+    var copy = JSON.parse(JSON.stringify(card));
+    saved = saved.filter(function (s) { return s.name !== name; });
+    saved.unshift({ name: name, card: copy, at: Date.now() });
+    saved = saved.slice(0, 12);
+    if (store(KEY_SAVED, saved)) { fillLoadMenu(); toast('Saved “' + name + '” in this browser'); }
+    else toast('This browser blocks saving. Copy the tags instead.');
+  });
+
+  $('lcs-make').addEventListener('click', function () {
+    readForm();
+    card.image = makeCardImage(card);
+    if (!card.imageAlt) card.imageAlt = (card.siteName || 'Site') + ' title card: ' + LC.clean(card.title);
+    writeForm();
+    measureImage(card.image);
+    render();
+    toast('Made a 1200 × 630 card image. Upload it to your site to use it.');
+  });
+
+  $('f-file').addEventListener('change', function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { toast('Choose an image file (JPG, PNG or WebP).'); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      card.image = String(reader.result);
+      writeForm();
+      measureImage(card.image);
+      render();
+      toast('Previewing ' + file.name + ' (stays in your browser)');
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
+  $('lcs-read').addEventListener('click', function () {
+    var src = $('f-source').value;
+    if (!LC.clean(src)) { toast('Paste the page source first.'); return; }
+    var r = LC.parseHead(src, window.DOMParser);
+    useCard(r.card);
+    $('lcs-found').innerHTML = r.found.map(function (k) { return '<span class="tagpill ok">' + LC.esc(k) + '</span>'; }).join('') +
+      r.missing.map(function (k) { return '<span class="tagpill no" title="Missing">' + LC.esc(k) + '</span>'; }).join('');
+    toast('Found ' + r.found.length + ' of ' + (r.found.length + r.missing.length) + ' tags');
+  });
+
+  app.querySelectorAll('[data-w]').forEach(function (b) {
+    if (b.tagName !== 'BUTTON') return;
+    b.addEventListener('click', function () {
+      $('lcs-pv').setAttribute('data-w', b.getAttribute('data-w'));
+      app.querySelectorAll('button[data-w]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      render();
+    });
+  });
+
+  app.querySelectorAll('[data-out]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      outMode = b.getAttribute('data-out');
+      app.querySelectorAll('[data-out]').forEach(function (x) { x.setAttribute('aria-selected', String(x === b)); });
+      render();
+    });
+  });
+
+  $('lcs-copy').addEventListener('click', function () {
+    var text = codeFor(outMode);
+    function fallback() {
+      var range = document.createRange();
+      range.selectNodeContents($('lcs-out'));
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(range);
+      toast('Selected. Press Ctrl+C (or long-press) to copy.');
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () { toast('Copied ' + outMode.toUpperCase() + ' tags'); }, fallback);
+    } catch (err) { fallback(); }
+  });
+
+  /* theme toggle: remembers the choice in this browser */
+  function applyTheme(t) { if (t) document.documentElement.setAttribute('data-theme', t); }
+  applyTheme(load(KEY_THEME, ''));
+  $('lcs-theme').addEventListener('click', function () {
+    var cur = document.documentElement.getAttribute('data-theme') ||
+      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    store(KEY_THEME, next);
+    toast(next === 'dark' ? 'Dark theme' : 'Light theme');
+  });
+
+  /* ---------- start ---------- */
+  fillLoadMenu();
+  var draft = load(KEY_DRAFT, null);
+  var start = function () { useCard(draft && draft.title !== undefined ? draft : SAMPLES[0].card); };
+  // Wait briefly for web fonts so the generated card image uses them.
+  if (document.fonts && document.fonts.ready) {
+    var done = false;
+    document.fonts.ready.then(function () { if (!done) { done = true; start(); } });
+    setTimeout(function () { if (!done) { done = true; start(); } }, 1200);
+  } else start();
+
+  // Exposed for automated tests only.
+  window.__lcs = { get card() { return card; }, render: render, useCard: useCard, samples: SAMPLES };
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# Test output written by tests/core.test.js
+tests/out-*
+
+# Local packages and archives
+node_modules/
+*.zip
+*.log

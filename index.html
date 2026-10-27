@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Link Card Studio</title>
+<meta name="description" content="Preview how a link looks on Google, Facebook, X, LinkedIn and chat apps, check it, and copy ready-made meta tags for HTML, Blogger or WordPress.">
+<link rel="canonical" href="https://efraimray.github.io/link-card-studio/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Link Card Studio">
+<meta property="og:title" content="Link Card Studio">
+<meta property="og:description" content="Preview, check and generate social share cards and meta tags for HTML, Blogger and WordPress.">
+<meta property="og:url" content="https://efraimray.github.io/link-card-studio/">
+<meta property="og:image" content="https://efraimray.github.io/link-card-studio/.github/social-preview.jpg">
+<meta property="og:image:alt" content="Link Card Studio: link previews and meta tag generator">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#2448d8">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='6' width='26' height='20' rx='4' fill='%232448d8'/%3E%3Crect x='7' y='10' width='18' height='7' rx='1.5' fill='%23fff'/%3E%3Crect x='7' y='20' width='12' height='2.5' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<!--APP-START-->
+<a class="skip" href="#lcs-main">Skip to the editor</a>
+<div class="lcs" id="lcs-app">
+  <header class="lcs-top">
+    <div class="lcs-brand">
+      <svg class="lcs-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4" fill="currentColor"/><rect x="7" y="10" width="18" height="7" rx="1.5" fill="var(--surface)"/><rect x="7" y="20" width="12" height="2.5" rx="1" fill="var(--surface)"/></svg>
+      <div>
+        <p class="lcs-name">Link Card Studio</p>
+        <p class="lcs-tag">See your link before you share it</p>
+      </div>
+    </div>
+    <div class="lcs-actions">
+      <label class="lcs-sel"><span class="vh">Load a sample or saved card</span>
+        <select id="lcs-load" aria-label="Load a sample or saved card"></select>
+      </label>
+      <button type="button" class="btn" id="lcs-save">Save card</button>
+      <button type="button" class="btn btn-ghost" id="lcs-theme" aria-label="Switch light or dark theme">Theme</button>
+    </div>
+  </header>
+
+  <main class="lcs-grid" id="lcs-main">
+  <div class="col col-left">
+    <!-- ============ EDITOR ============ -->
+    <section class="panel lcs-editor" aria-labelledby="lcs-ed-h">
+      <div class="panel-head">
+        <h2 id="lcs-ed-h">Your link</h2>
+        <span class="score" id="lcs-score" aria-live="polite"><b>0</b><small>/100</small></span>
+      </div>
+
+      <form id="lcs-form" class="form" novalidate>
+        <div class="field">
+          <label for="f-url">Page URL</label>
+          <input id="f-url" name="url" type="url" inputmode="url" autocomplete="off" placeholder="https://example.com/page">
+        </div>
+        <div class="field">
+          <label for="f-siteName">Site name</label>
+          <input id="f-siteName" name="siteName" type="text" autocomplete="off" placeholder="Your business or blog name">
+        </div>
+        <div class="field">
+          <div class="label-row"><label for="f-title">Title</label><span class="count" id="c-title">0</span></div>
+          <input id="f-title" name="title" type="text" autocomplete="off" placeholder="What the page is about, key words first">
+          <div class="ruler" aria-hidden="true"><div class="ruler-fill" id="r-title"></div><span class="ruler-mark"></span></div>
+          <p class="hint" id="h-title">Google cuts titles near 600 px.</p>
+        </div>
+        <div class="field">
+          <div class="label-row"><label for="f-description">Description</label><span class="count" id="c-description">0</span></div>
+          <textarea id="f-description" name="description" rows="3" placeholder="One or two sentences that make people want to click"></textarea>
+          <div class="ruler" aria-hidden="true"><div class="ruler-fill" id="r-description"></div><span class="ruler-mark"></span></div>
+          <p class="hint" id="h-description">Aim for 70-160 characters.</p>
+        </div>
+        <div class="field">
+          <label for="f-image">Image URL</label>
+          <input id="f-image" name="image" type="url" inputmode="url" autocomplete="off" placeholder="https://example.com/card.jpg (1200 x 630)">
+          <div class="img-tools">
+            <label class="btn btn-small" for="f-file">Try a local image</label>
+            <input id="f-file" type="file" accept="image/*" class="vh">
+            <button type="button" class="btn btn-small" id="lcs-make">Make a card image</button>
+            <span class="img-meta" id="lcs-imgmeta">No image</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-imageAlt">Image alt text</label>
+          <input id="f-imageAlt" name="imageAlt" type="text" autocomplete="off" placeholder="Describe the image in a short sentence">
+        </div>
+
+        <details class="more">
+          <summary>More options</summary>
+          <div class="more-grid">
+            <div class="field">
+              <label for="f-type">Page type</label>
+              <select id="f-type" name="type"><option value="website">website (home, service page)</option><option value="article">article (blog post, news)</option></select>
+            </div>
+            <div class="field">
+              <label for="f-twitterCard">X card</label>
+              <select id="f-twitterCard" name="twitterCard"><option value="summary_large_image">Large image</option><option value="summary">Small square</option></select>
+            </div>
+            <div class="field">
+              <label for="f-twitterSite">X handle</label>
+              <input id="f-twitterSite" name="twitterSite" type="text" autocomplete="off" placeholder="@yourname">
+            </div>
+            <div class="field">
+              <label for="f-locale">Locale</label>
+              <input id="f-locale" name="locale" type="text" autocomplete="off" placeholder="en_PH">
+            </div>
+            <div class="field">
+              <label for="f-themeColor">Brand colour</label>
+              <input id="f-themeColor" name="themeColor" type="text" autocomplete="off" placeholder="#2448d8">
+            </div>
+          </div>
+        </details>
+
+        <details class="more" id="lcs-import">
+          <summary>Check an existing page</summary>
+          <div class="field">
+            <label for="f-source">Paste the page source (Ctrl+U in your browser, then copy)</label>
+            <textarea id="f-source" rows="5" spellcheck="false" placeholder="&lt;html&gt;&lt;head&gt;&lt;title&gt;…"></textarea>
+          </div>
+          <button type="button" class="btn" id="lcs-read">Read the tags</button>
+          <div class="found" id="lcs-found" aria-live="polite"></div>
+        </details>
+      </form>
+    </section>
+
+    <!-- ============ CHECKS ============ -->
+    <section class="panel lcs-checks" aria-labelledby="lcs-ck-h">
+      <div class="panel-head"><h2 id="lcs-ck-h">Checks</h2><span class="tally" id="lcs-tally"></span></div>
+      <ul class="checks" id="lcs-checks"></ul>
+    </section>
+  </div>
+  <div class="col col-right">
+    <!-- ============ PREVIEWS ============ -->
+    <section class="panel lcs-previews" aria-labelledby="lcs-pv-h">
+      <div class="panel-head">
+        <h2 id="lcs-pv-h">Previews</h2>
+        <div class="seg" role="group" aria-label="Preview width">
+          <button type="button" class="seg-btn" data-w="desktop" aria-pressed="true">Desktop</button>
+          <button type="button" class="seg-btn" data-w="phone" aria-pressed="false">Phone</button>
+        </div>
+      </div>
+      <div class="pv-wrap" id="lcs-pv" data-w="desktop">
+        <article class="pv" aria-label="Google search preview">
+          <p class="pv-label">Google search</p>
+          <div class="g">
+            <div class="g-src"><span class="g-fav" id="g-fav">E</span><span><span class="g-site" id="g-site"></span><span class="g-crumb" id="g-crumb"></span></span></div>
+            <p class="g-title" id="g-title"></p>
+            <p class="g-desc" id="g-desc"></p>
+          </div>
+        </article>
+
+        <article class="pv" aria-label="Facebook and Messenger preview">
+          <p class="pv-label">Facebook</p>
+          <div class="fb">
+            <div class="fb-img"><img id="fb-img" alt=""></div>
+            <div class="fb-body">
+              <p class="fb-host" id="fb-host"></p>
+              <p class="fb-title" id="fb-title"></p>
+              <p class="fb-desc" id="fb-desc"></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="pv" aria-label="X preview">
+          <p class="pv-label">X</p>
+          <div class="x" id="x-card">
+            <div class="x-img"><img id="x-img" alt=""><span class="x-over" id="x-over"></span></div>
+            <p class="x-from" id="x-from"></p>
+          </div>
+        </article>
+
+        <article class="pv" aria-label="LinkedIn preview">
+          <p class="pv-label">LinkedIn</p>
+          <div class="li">
+            <div class="li-img"><img id="li-img" alt=""></div>
+            <div class="li-body"><p class="li-title" id="li-title"></p><p class="li-host" id="li-host"></p></div>
+          </div>
+        </article>
+
+        <article class="pv" aria-label="Chat app preview">
+          <p class="pv-label">Chat apps (Messenger, Viber, WhatsApp style)</p>
+          <div class="chat">
+            <div class="chat-bubble">
+              <p class="chat-url" id="chat-url"></p>
+              <div class="chat-card">
+                <div class="chat-img"><img id="chat-img" alt=""></div>
+                <p class="chat-title" id="chat-title"></p>
+                <p class="chat-host" id="chat-host"></p>
+              </div>
+            </div>
+          </div>
+        </article>
+        <p class="pv-note">Layouts are close approximations; each app changes its design from time to time.</p>
+      </div>
+    </section>
+
+    <!-- ============ CODE ============ -->
+    <section class="panel lcs-code" aria-labelledby="lcs-cd-h">
+      <div class="panel-head">
+        <h2 id="lcs-cd-h">Copy the tags</h2>
+        <div class="seg" role="tablist" aria-label="Output format">
+          <button type="button" class="seg-btn" role="tab" data-out="html" aria-selected="true">HTML</button>
+          <button type="button" class="seg-btn" role="tab" data-out="blogger" aria-selected="false">Blogger</button>
+          <button type="button" class="seg-btn" role="tab" data-out="wordpress" aria-selected="false">WordPress</button>
+        </div>
+      </div>
+      <p class="out-help" id="lcs-outhelp"></p>
+      <div class="code-box">
+        <button type="button" class="btn btn-small copy" id="lcs-copy">Copy</button>
+        <pre id="lcs-out" tabindex="0"><code></code></pre>
+      </div>
+    </section>
+  </div>
+  </main>
+
+  <footer class="lcs-foot">
+    <p>Everything runs in your browser. Nothing you type or upload is sent anywhere. Saved cards stay in this browser only.</p>
+    <p>Link Card Studio v1.0.0 · MIT · by <a href="https://www.efraimray.com/" target="_blank" rel="noopener">Efraim Ray</a> · <a href="https://github.com/EfraimRay/link-card-studio" target="_blank" rel="noopener">GitHub</a></p>
+  </footer>
+  <div class="toast" id="lcs-toast" role="status" aria-live="polite"></div>
+</div>
+<!--APP-END-->
+<script src="js/core.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
